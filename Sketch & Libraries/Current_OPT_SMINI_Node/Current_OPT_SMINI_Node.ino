@@ -22,8 +22,8 @@ byte last_input_state[3];                           // Define variable to store 
 byte last_output_state[6];                          // Define variable to store the previous state of outputs
 
 void setup() {
-  // Open the RS485 bus at 57600bps
-  bus.begin(57600, SERIAL_8N2);
+  // Open the RS485 bus at 19200bps
+  bus.begin(19200, SERIAL_8N2);
 
   // 74HC165 setup
   pinMode(LATCH_165, OUTPUT);
@@ -50,20 +50,20 @@ void loop() {
   cmri.process();
 
   // Step 2: Update the output shift registers if the output state has changed
-byte currentOutputState[6];
-for (int i = 0; i < 6; i++) {
-  currentOutputState[i] = cmri.get_byte(i);
-}
-
-if (memcmp(last_output_state, currentOutputState, 6) != 0) {
-  memcpy(last_output_state, currentOutputState, 6);
-
-  digitalWrite(LATCH_595, LOW);                     // Start by setting Latch Low
-  for (int i = 5; i >= 0; i--) {
-    shiftOut(DATA_595, CLOCK_595, MSBFIRST, ~currentOutputState[i]); // Send the ith byte
+  byte currentOutputState[6];
+  for (int i = 0; i < 6; i++) {
+    currentOutputState[i] = cmri.get_byte(i);
   }
-  digitalWrite(LATCH_595, HIGH);                    // Set the Latch High to update the Data
-}
+
+  if (memcmp(last_output_state, currentOutputState, 6) != 0) {
+    memcpy(last_output_state, currentOutputState, 6);
+
+    digitalWrite(LATCH_595, LOW);                     // Start by setting Latch Low
+    for (int i = 5; i >= 0; i--) {
+      shiftOut(DATA_595, CLOCK_595, MSBFIRST, ~currentOutputState[i]); // Send the ith byte
+    }
+    digitalWrite(LATCH_595, HIGH);                    // Set the Latch High to update the Data
+  }
 
   // Step 3: Read the current state of the input pins
   digitalWrite(LATCH_165, LOW);                     // pulse the parallel load latch
@@ -77,12 +77,9 @@ if (memcmp(last_output_state, currentOutputState, 6) != 0) {
 
   // Step 4: If the input state has changed, update the CMRI input bytes
   if (memcmp(currentInputState, last_input_state, 3) != 0) {
-  memcpy(last_input_state, currentInputState, 3);
+    memcpy(last_input_state, currentInputState, 3);
     for (int i = 0; i < 3; i++) {
-    cmri.set_byte(i, currentInputState[i]);
+      cmri.set_byte(i, currentInputState[i]);
+    }
   }
-}
-
-  // Step 5: Wait for the next iteration
-  delay(1);
 }
