@@ -1,3 +1,11 @@
+/*
+  Project: Arduino Nano-based CMRI SMINI Node (48 outputs & 24 inputs)
+  Author: Thomas Seitz (thomas.seitz@tmrci.org)
+  Version: 1.0.2
+  Date: 2023-05-17
+  Description: A sketch for an Arduino Nano-based CMRI SMINI Node board using RS-485
+*/
+
 // Import required libraries
 #include <Auto485.h>                                // Library for RS485 communication
 #include <CMRI.h>                                   // Library for CMRI communication
